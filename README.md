@@ -1,5 +1,27 @@
 # Welcome to your Expo app 👋
 
+# Beskrivning för VG
+
+Du skall i denna uppgift bygga en väderapp med React Native och OpenWeatherMap API:et. Appen skall bestå av 3 sidor: **huvudsidan**, **favoriter** och **inställningar**. Varje sida har olika funktioner.
+
+## Huvudsida:
+- [ ] Ett textfält där man kan skriva in namn på en stad
+- [ ] En plats för att visa vädret för staden som står i textfältet
+- [ ] Värden som skall visas: temperatur, en kort beskrivning och en ikon (sol, moln, regn)
+- [ ] En knapp för att markera staden som favorit (som finns kvar även efter omstart)
+- [ ] En knapp för att automatiskt söka upp staden man är i med GPS
+
+## Favoriter sida:
+- [ ] En lista med favoritstäder 
+- [ ] Ett sätt att ta bort en favorit
+- [ ] Man skall kunna trycka på en stad som visar den stadens väder på huvudsidan
+
+## Inställningar sida:
+- [ ] En inställning för att byta mellan celsius och fahrenheit
+
+
+---
+
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
 ## Get started
