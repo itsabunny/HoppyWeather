@@ -1,6 +1,6 @@
 import { ThemedText } from "@/components/themed-text";
 
-export default function SettingsScreen(){
+export default function FavouritesScreen(){
     return (
         <ThemedText>Favourites!</ThemedText>
     )
