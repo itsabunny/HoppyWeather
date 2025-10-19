@@ -4,11 +4,7 @@ import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 
 export default function HomeScreen() {
-  return (
-    <ThemedView>
-      <ThemedText>Home, Sweet Home!</ThemedText>
-    </ThemedView>
-  );
+  return <ThemedText>Home, Sweet Home!</ThemedText>;
 }
 
 const styles = StyleSheet.create({
