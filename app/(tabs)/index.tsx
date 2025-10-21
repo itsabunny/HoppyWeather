@@ -5,6 +5,7 @@ import {
   Alert,
   ScrollView,
   StyleSheet,
+  Text,
   TextInput,
   TouchableOpacity,
   View,
@@ -62,7 +63,6 @@ export default function HomeScreen() {
 
   const handleGPS = async () => {
     try {
-      // Be om tillstånd
       const { status } = await Location.requestForegroundPermissionsAsync();
 
       if (status !== "granted") {
@@ -73,11 +73,9 @@ export default function HomeScreen() {
         return;
       }
 
-      // Hämta position
       const location = await Location.getCurrentPositionAsync({});
       const { latitude, longitude } = location.coords;
 
-      // Hämta väder baserat på koordinater
       const weatherData = await getWeatherByCoordinates(latitude, longitude);
       if (weatherData) {
         setCurrentWeather(weatherData);
@@ -158,10 +156,14 @@ export default function HomeScreen() {
           <View style={styles.weatherContent}>
             <IconSymbol name={weatherData.icon} size={80} color="#fff" />
             {currentWeather && (
-              <ThemedText style={styles.temperature}>
-                {convertTemperature(weatherData.temperature)}°
-                {temperatureUnit === "celsius" ? "C" : "F"}
-              </ThemedText>
+              <View style={styles.temperatureRow}>
+                <ThemedText style={styles.temperatureValue}>
+                  {Math.round(convertTemperature(weatherData.temperature))}
+                </ThemedText>
+                <Text style={styles.temperatureUnit}>
+                  °{temperatureUnit === "celsius" ? "C" : "F"}
+                </Text>
+              </View>
             )}
           </View>
 
@@ -266,11 +268,25 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 20,
   },
-  temperature: {
-    fontSize: 64,
-    fontWeight: "bold",
-    color: "#fff",
+  temperatureRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "center",
     marginTop: 10,
+  },
+  temperatureValue: {
+    fontSize: 72,
+    fontWeight: "700",
+    lineHeight: 80,
+    includeFontPadding: false,
+    color: "#fff",
+  },
+  temperatureUnit: {
+    fontSize: 32,
+    fontWeight: "600",
+    marginTop: 10,
+    includeFontPadding: false,
+    color: "#fff",
   },
   description: {
     fontSize: 20,
