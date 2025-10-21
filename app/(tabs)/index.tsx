@@ -1,28 +1,37 @@
-import { StyleSheet, TextInput, View, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from "react-native";
-import { useState } from "react";
 import * as Location from "expo-location";
+import { useState } from "react";
+import {
+  ActivityIndicator,
+  Alert,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { IconSymbol } from "@/components/ui/icon-symbol";
-import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors } from "@/constants/theme";
-import { useWeather } from "@/app/context/weather-context";
+import { useWeather } from "@/context/weather-context";
+import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useFetchWeather } from "@/hooks/use-fetch-weather";
 
 export default function HomeScreen() {
   const [city, setCity] = useState("");
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? "light"];
-  const { 
-    currentWeather, 
+  const {
+    currentWeather,
     setCurrentWeather,
-    addFavorite, 
-    isFavorite, 
-    convertTemperature, 
-    temperatureUnit 
+    addFavorite,
+    isFavorite,
+    convertTemperature,
+    temperatureUnit,
   } = useWeather();
-  const { getWeatherByCity, getWeatherByCoordinates, isLoading, error } = useFetchWeather();
+  const { getWeatherByCity, getWeatherByCoordinates, isLoading, error } =
+    useFetchWeather();
 
   const handleAddFavorite = () => {
     if (currentWeather) {
@@ -55,9 +64,12 @@ export default function HomeScreen() {
     try {
       // Be om tillstånd
       const { status } = await Location.requestForegroundPermissionsAsync();
-      
+
       if (status !== "granted") {
-        Alert.alert("Permission Denied", "Location permission is required to use GPS");
+        Alert.alert(
+          "Permission Denied",
+          "Location permission is required to use GPS"
+        );
         return;
       }
 
@@ -86,7 +98,9 @@ export default function HomeScreen() {
     icon: "cloud.sun.fill",
   };
 
-  const isCurrentCityFavorite = currentWeather ? isFavorite(weatherData.city) : false;
+  const isCurrentCityFavorite = currentWeather
+    ? isFavorite(weatherData.city)
+    : false;
 
   return (
     <ThemedView style={styles.container}>
@@ -110,7 +124,7 @@ export default function HomeScreen() {
               editable={!isLoading}
             />
           </View>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[styles.gpsButton, { backgroundColor: colors.tint }]}
             onPress={handleGPS}
             disabled={isLoading}
@@ -128,14 +142,14 @@ export default function HomeScreen() {
           <View style={styles.weatherHeader}>
             <ThemedText style={styles.cityName}>{weatherData.city}</ThemedText>
             {currentWeather && (
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.favoriteButton}
                 onPress={handleAddFavorite}
               >
-                <IconSymbol 
-                  name={isCurrentCityFavorite ? "heart.fill" : "heart"} 
-                  size={28} 
-                  color="#fff" 
+                <IconSymbol
+                  name={isCurrentCityFavorite ? "heart.fill" : "heart"}
+                  size={28}
+                  color="#fff"
                 />
               </TouchableOpacity>
             )}
@@ -145,7 +159,8 @@ export default function HomeScreen() {
             <IconSymbol name={weatherData.icon} size={80} color="#fff" />
             {currentWeather && (
               <ThemedText style={styles.temperature}>
-                {convertTemperature(weatherData.temperature)}°{temperatureUnit === "celsius" ? "C" : "F"}
+                {convertTemperature(weatherData.temperature)}°
+                {temperatureUnit === "celsius" ? "C" : "F"}
               </ThemedText>
             )}
           </View>
@@ -154,29 +169,31 @@ export default function HomeScreen() {
             {weatherData.description}
           </ThemedText>
 
-          {currentWeather && currentWeather.humidity && currentWeather.windSpeed && (
-            <View style={styles.extraInfo}>
-              <View style={styles.infoItem}>
-                <IconSymbol name="humidity" size={20} color="#fff" />
-                <ThemedText style={styles.infoItemText}>
-                  {currentWeather.humidity}%
-                </ThemedText>
+          {currentWeather &&
+            currentWeather.humidity &&
+            currentWeather.windSpeed && (
+              <View style={styles.extraInfo}>
+                <View style={styles.infoItem}>
+                  <IconSymbol name="humidity" size={20} color="#fff" />
+                  <ThemedText style={styles.infoItemText}>
+                    {currentWeather.humidity}%
+                  </ThemedText>
+                </View>
+                <View style={styles.infoItem}>
+                  <IconSymbol name="wind" size={20} color="#fff" />
+                  <ThemedText style={styles.infoItemText}>
+                    {currentWeather.windSpeed} m/s
+                  </ThemedText>
+                </View>
               </View>
-              <View style={styles.infoItem}>
-                <IconSymbol name="wind" size={20} color="#fff" />
-                <ThemedText style={styles.infoItemText}>
-                  {currentWeather.windSpeed} m/s
-                </ThemedText>
-              </View>
-            </View>
-          )}
+            )}
         </View>
 
         {/* Info text */}
         <View style={styles.infoContainer}>
           <ThemedText style={styles.infoText}>
-            {currentWeather 
-              ? "Add to favorites or search for another city" 
+            {currentWeather
+              ? "Add to favorites or search for another city"
               : "Search for a city or use GPS to get current weather"}
           </ThemedText>
         </View>
