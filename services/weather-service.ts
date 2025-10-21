@@ -1,6 +1,6 @@
 import endpoints from "@/constants/endpoints";
 
-const API_KEY = "YOUR_API_KEY_HERE"; // Användaren behöver lägga till sin egen API-nyckel
+const API_KEY = "031a0f63e84094a6922d241dfc5ec92e";
 
 export type WeatherResponse = {
   name: string;
