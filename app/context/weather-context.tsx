@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export type WeatherData = {
   city: string;
@@ -28,14 +29,79 @@ type WeatherContextType = {
   temperatureUnit: TemperatureUnit;
   setTemperatureUnit: (unit: TemperatureUnit) => void;
   convertTemperature: (temp: number) => number;
+  isLoading: boolean;
 };
 
 const WeatherContext = createContext<WeatherContextType | undefined>(undefined);
 
+const FAVORITES_KEY = "@weather_favorites";
+const TEMPERATURE_UNIT_KEY = "@temperature_unit";
+
 export function WeatherProvider({ children }: { children: ReactNode }) {
   const [currentWeather, setCurrentWeather] = useState<WeatherData | null>(null);
   const [favorites, setFavorites] = useState<Favorite[]>([]);
-  const [temperatureUnit, setTemperatureUnit] = useState<TemperatureUnit>("celsius");
+  const [temperatureUnit, setTemperatureUnitState] = useState<TemperatureUnit>("celsius");
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Ladda favoriter och inställningar vid start
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  // Spara favoriter när de ändras
+  useEffect(() => {
+    if (!isLoading) {
+      saveFavorites();
+    }
+  }, [favorites]);
+
+  // Spara temperaturenhet när den ändras
+  useEffect(() => {
+    if (!isLoading) {
+      saveTemperatureUnit();
+    }
+  }, [temperatureUnit]);
+
+  const loadData = async () => {
+    try {
+      const [favoritesData, unitData] = await Promise.all([
+        AsyncStorage.getItem(FAVORITES_KEY),
+        AsyncStorage.getItem(TEMPERATURE_UNIT_KEY),
+      ]);
+
+      if (favoritesData) {
+        setFavorites(JSON.parse(favoritesData));
+      }
+
+      if (unitData) {
+        setTemperatureUnitState(unitData as TemperatureUnit);
+      }
+    } catch (error) {
+      console.error("Error loading data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const saveFavorites = async () => {
+    try {
+      await AsyncStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
+    } catch (error) {
+      console.error("Error saving favorites:", error);
+    }
+  };
+
+  const saveTemperatureUnit = async () => {
+    try {
+      await AsyncStorage.setItem(TEMPERATURE_UNIT_KEY, temperatureUnit);
+    } catch (error) {
+      console.error("Error saving temperature unit:", error);
+    }
+  };
+
+  const setTemperatureUnit = (unit: TemperatureUnit) => {
+    setTemperatureUnitState(unit);
+  };
 
   const addFavorite = (favorite: Favorite) => {
     setFavorites((prev) => {
@@ -74,6 +140,7 @@ export function WeatherProvider({ children }: { children: ReactNode }) {
         temperatureUnit,
         setTemperatureUnit,
         convertTemperature,
+        isLoading,
       }}
     >
       {children}

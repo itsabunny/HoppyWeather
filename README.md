@@ -5,38 +5,45 @@
 Du skall i denna uppgift bygga en väderapp med React Native och OpenWeatherMap API:et. Appen skall bestå av 3 sidor: **huvudsidan**, **favoriter** och **inställningar**. Varje sida har olika funktioner.
 
 ## Huvudsida:
-- [ ] Ett textfält där man kan skriva in namn på en stad
-- [ ] En plats för att visa vädret för staden som står i textfältet
-- [ ] Värden som skall visas: temperatur, en kort beskrivning och en ikon (sol, moln, regn)
-- [ ] En knapp för att markera staden som favorit (som finns kvar även efter omstart)
-- [ ] En knapp för att automatiskt söka upp staden man är i med GPS
+- [x] Ett textfält där man kan skriva in namn på en stad
+- [x] En plats för att visa vädret för staden som står i textfältet
+- [x] Värden som skall visas: temperatur, en kort beskrivning och en ikon (sol, moln, regn)
+- [x] En knapp för att markera staden som favorit (som finns kvar även efter omstart)
+- [x] En knapp för att automatiskt söka upp staden man är i med GPS
 
 ## Favoriter sida:
-- [ ] En lista med favoritstäder 
-- [ ] Ett sätt att ta bort en favorit
-- [ ] Man skall kunna trycka på en stad som visar den stadens väder på huvudsidan
+- [x] En lista med favoritstäder 
+- [x] Ett sätt att ta bort en favorit
+- [x] Man skall kunna trycka på en stad som visar den stadens väder på huvudsidan
 
 ## Inställningar sida:
-- [ ] En inställning för att byta mellan celsius och fahrenheit
+- [x] En inställning för att byta mellan celsius och fahrenheit
 
+## Setup Instructions
 
----
+### 1. Install dependencies
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+```bash
+npm install
+```
 
-## Get started
+### 2. Get OpenWeatherMap API Key
 
-1. Install dependencies
+1. Go to [OpenWeatherMap](https://openweathermap.org/api)
+2. Sign up for a free account
+3. Generate an API key
+4. Open `app/services/weather-service.ts`
+5. Replace `YOUR_API_KEY_HERE` with your actual API key:
 
-   ```bash
-   npm install
-   ```
+```typescript
+const API_KEY = "your_actual_api_key_here";
+```
 
-2. Start the app
+### 3. Start the app
 
-   ```bash
-   npx expo start
-   ```
+```bash
+npx expo start
+```
 
 In the output, you'll find options to open the app in a
 
@@ -47,26 +54,62 @@ In the output, you'll find options to open the app in a
 
 You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
 
-## Get a fresh project
+## Features
 
-When you're ready, run:
+- ✅ Search weather by city name
+- ✅ Get weather by current GPS location
+- ✅ Add cities to favorites (persisted with AsyncStorage)
+- ✅ Remove cities from favorites
+- ✅ Switch between Celsius and Fahrenheit
+- ✅ Beautiful UI with light/dark mode support
+- ✅ Weather icons mapped to SF Symbols
+- ✅ Additional weather info (humidity, wind speed)
 
-```bash
-npm run reset-project
+## Tech Stack
+
+- React Native
+- Expo
+- TypeScript
+- Expo Router (file-based routing)
+- Context API (state management)
+- AsyncStorage (persistent storage)
+- OpenWeatherMap API
+- Expo Location
+
+## Project Structure
+
+```
+app/
+├── (tabs)/           # Tab screens
+│   ├── index.tsx     # Home screen
+│   ├── favourites.tsx # Favorites screen
+│   └── settings.tsx  # Settings screen
+├── context/          # React Context
+│   └── weather-context.tsx
+├── services/         # API services
+│   └── weather-service.ts
+└── _layout.tsx       # Root layout
+
+hooks/
+└── use-fetch-weather.ts  # Weather fetching hook
+
+constants/
+├── endpoints.ts      # API endpoints
+└── theme.ts          # Theme colors
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Conventional Commits
 
-## Learn more
+This project uses conventional commits:
 
-To learn more about developing your project with Expo, look at the following resources:
+- `feat:` - New features
+- `fix:` - Bug fixes
+- `docs:` - Documentation changes
+- `style:` - Code style changes
+- `refactor:` - Code refactoring
+- `test:` - Test changes
+- `chore:` - Build/tooling changes
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+---
 
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
