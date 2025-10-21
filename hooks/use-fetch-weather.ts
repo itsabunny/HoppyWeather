@@ -1,6 +1,6 @@
+import { WeatherData } from "@/context/weather-context";
+import { fetchWeatherByCity, fetchWeatherByCoordinates, mapWeatherIconToSymbol } from "@/services/weather-service";
 import { useState } from "react";
-import { fetchWeatherByCity, fetchWeatherByCoordinates, mapWeatherIconToSymbol } from "@/app/services/weather-service";
-import { WeatherData } from "@/app/context/weather-context";
 
 export function useFetchWeather() {
   const [isLoading, setIsLoading] = useState(false);
