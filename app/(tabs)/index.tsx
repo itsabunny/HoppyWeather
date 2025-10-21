@@ -6,19 +6,50 @@ import { ThemedView } from "@/components/themed-view";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors } from "@/constants/theme";
+import { useWeather } from "@/app/context/weather-context";
 
 export default function HomeScreen() {
   const [city, setCity] = useState("");
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? "light"];
+  const { 
+    currentWeather, 
+    addFavorite, 
+    isFavorite, 
+    convertTemperature, 
+    temperatureUnit 
+  } = useWeather();
 
-  // Placeholder väderdata
-  const weatherData = {
+  const handleAddFavorite = () => {
+    if (currentWeather) {
+      addFavorite({
+        id: Date.now().toString(),
+        city: currentWeather.city,
+        temperature: currentWeather.temperature,
+        description: currentWeather.description,
+      });
+    }
+  };
+
+  const handleSearch = () => {
+    console.log("Search for:", city);
+    // Detta kommer att implementeras med API senare
+  };
+
+  const handleGPS = () => {
+    console.log("GPS pressed");
+    // Detta kommer att implementeras med location senare
+  };
+
+  // Placeholder väderdata om ingen data finns
+  const weatherData = currentWeather || {
     city: "Stockholm",
     temperature: 15,
     description: "Partly cloudy",
     icon: "cloud.sun.fill",
   };
+
+  const isCurrentCityFavorite = isFavorite(weatherData.city);
 
   return (
     <ThemedView style={styles.container}>
@@ -38,11 +69,12 @@ export default function HomeScreen() {
               placeholderTextColor={colors.icon}
               value={city}
               onChangeText={setCity}
+              onSubmitEditing={handleSearch}
             />
           </View>
           <TouchableOpacity 
             style={[styles.gpsButton, { backgroundColor: colors.tint }]}
-            onPress={() => console.log("GPS pressed")}
+            onPress={handleGPS}
           >
             <IconSymbol name="location.fill" size={24} color="#fff" />
           </TouchableOpacity>
@@ -54,16 +86,20 @@ export default function HomeScreen() {
             <ThemedText style={styles.cityName}>{weatherData.city}</ThemedText>
             <TouchableOpacity 
               style={styles.favoriteButton}
-              onPress={() => console.log("Favorite pressed")}
+              onPress={handleAddFavorite}
             >
-              <IconSymbol name="heart" size={28} color="#fff" />
+              <IconSymbol 
+                name={isCurrentCityFavorite ? "heart.fill" : "heart"} 
+                size={28} 
+                color="#fff" 
+              />
             </TouchableOpacity>
           </View>
 
           <View style={styles.weatherContent}>
             <IconSymbol name={weatherData.icon} size={80} color="#fff" />
             <ThemedText style={styles.temperature}>
-              {weatherData.temperature}°C
+              {convertTemperature(weatherData.temperature)}°{temperatureUnit === "celsius" ? "C" : "F"}
             </ThemedText>
           </View>
 
@@ -83,90 +119,4 @@ export default function HomeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  scrollContent: {
-    padding: 20,
-  },
-  header: {
-    marginBottom: 30,
-    marginTop: 20,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: "bold",
-  },
-  searchContainer: {
-    flexDirection: "row",
-    gap: 10,
-    marginBottom: 30,
-  },
-  inputWrapper: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 2,
-    borderRadius: 12,
-    paddingHorizontal: 15,
-    gap: 10,
-  },
-  input: {
-    flex: 1,
-    paddingVertical: 15,
-    fontSize: 16,
-  },
-  gpsButton: {
-    width: 56,
-    height: 56,
-    borderRadius: 12,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  weatherCard: {
-    borderRadius: 20,
-    padding: 30,
-    marginBottom: 20,
-  },
-  weatherHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  cityName: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#fff",
-  },
-  favoriteButton: {
-    padding: 5,
-  },
-  weatherContent: {
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  temperature: {
-    fontSize: 64,
-    fontWeight: "bold",
-    color: "#fff",
-    marginTop: 10,
-  },
-  description: {
-    fontSize: 20,
-    color: "#fff",
-    textAlign: "center",
-    textTransform: "capitalize",
-  },
-  infoContainer: {
-    padding: 15,
-    borderRadius: 12,
-    backgroundColor: "rgba(128, 128, 128, 0.1)",
-  },
-  infoText: {
-    textAlign: "center",
-    fontSize: 14,
-    opacity: 0.7,
-  },
-});
+// ... existing code ...

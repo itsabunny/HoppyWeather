@@ -1,13 +1,14 @@
 import { StyleSheet, View, TouchableOpacity, Switch } from "react-native";
-import { useState } from "react";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors } from "@/constants/theme";
+import { useWeather } from "@/app/context/weather-context";
 
 export default function SettingsScreen() {
-  const [isCelsius, setIsCelsius] = useState(true);
+  const { temperatureUnit, setTemperatureUnit } = useWeather();
+  const isCelsius = temperatureUnit === "celsius";
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? "light"];
 
@@ -37,7 +38,7 @@ export default function SettingsScreen() {
                 isCelsius && { backgroundColor: colors.tint },
                 !isCelsius && { borderColor: colors.icon, borderWidth: 2 },
               ]}
-              onPress={() => setIsCelsius(true)}
+              onPress={() => setTemperatureUnit("celsius")}
             >
               <ThemedText
                 style={[
@@ -63,7 +64,7 @@ export default function SettingsScreen() {
                 !isCelsius && { backgroundColor: colors.tint },
                 isCelsius && { borderColor: colors.icon, borderWidth: 2 },
               ]}
-              onPress={() => setIsCelsius(false)}
+              onPress={() => setTemperatureUnit("fahrenheit")}
             >
               <ThemedText
                 style={[
@@ -90,7 +91,7 @@ export default function SettingsScreen() {
             </ThemedText>
             <Switch
               value={!isCelsius}
-              onValueChange={(value) => setIsCelsius(!value)}
+              onValueChange={(value) => setTemperatureUnit(value ? "fahrenheit" : "celsius")}
               trackColor={{ false: colors.tint, true: colors.tint }}
               thumbColor="#fff"
             />
@@ -110,93 +111,4 @@ export default function SettingsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  header: {
-    padding: 20,
-    paddingTop: 40,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: "bold",
-    marginBottom: 5,
-  },
-  subtitle: {
-    fontSize: 14,
-    opacity: 0.6,
-  },
-  content: {
-    padding: 20,
-    paddingTop: 0,
-  },
-  settingCard: {
-    borderWidth: 2,
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 20,
-  },
-  settingHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    marginBottom: 20,
-  },
-  settingTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-  unitSelector: {
-    flexDirection: "row",
-    gap: 15,
-    marginBottom: 20,
-  },
-  unitButton: {
-    flex: 1,
-    padding: 20,
-    borderRadius: 12,
-    alignItems: "center",
-  },
-  unitText: {
-    fontSize: 32,
-    fontWeight: "bold",
-    marginBottom: 5,
-  },
-  unitTextActive: {
-    color: "#fff",
-  },
-  unitLabel: {
-    fontSize: 14,
-  },
-  unitLabelActive: {
-    color: "#fff",
-  },
-  switchContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingTop: 15,
-    borderTopWidth: 1,
-    borderTopColor: "rgba(128, 128, 128, 0.2)",
-  },
-  switchLabel: {
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  infoSection: {
-    padding: 20,
-    borderRadius: 12,
-    backgroundColor: "rgba(128, 128, 128, 0.1)",
-  },
-  infoTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 10,
-  },
-  infoText: {
-    fontSize: 14,
-    opacity: 0.7,
-    marginBottom: 5,
-  },
-});
+// ... existing code ...
