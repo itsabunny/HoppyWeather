@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { IconSymbol } from "@/components/ui/icon-symbol";
@@ -5,9 +6,14 @@ import { Colors } from "@/constants/theme";
 import { useWeather } from "@/context/weather-context";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { router } from "expo-router";
-import { FlatList, TouchableOpacity, View, StyleSheet } from "react-native";
+import {
+  FlatList,
+  TouchableOpacity,
+  View,
+  StyleSheet,
+  ActivityIndicator,
+} from "react-native";
 import { useFetchWeather } from "@/hooks/use-fetch-weather";
-
 
 export default function FavouritesScreen() {
   const colorScheme = useColorScheme();
@@ -19,11 +25,29 @@ export default function FavouritesScreen() {
     convertTemperature,
     temperatureUnit,
   } = useWeather();
+
   const { getWeatherByCity, isLoading } = useFetchWeather();
 
+  // Visar loader på just den post som tryckts
+  const [pressedId, setPressedId] = useState<string | null>(null);
 
-  const handleCityPress = (favorite: (typeof favorites)[0]) => {
-    // Sätt vädret och navigera till huvudsidan
+  const handleCityPress = async (favorite: (typeof favorites)[0]) => {
+    if (pressedId) return; // förhindra multi-press
+    setPressedId(favorite.id);
+    try {
+      const fresh = await getWeatherByCity(favorite.city);
+      if (fresh) {
+        setCurrentWeather(fresh);
+        router.push("/");
+        return;
+      }
+    } catch {
+      // Ignorera – vi faller tillbaka nedan
+    } finally {
+      setPressedId(null);
+    }
+
+    // Fallback: använd snapshot om API-call misslyckas
     setCurrentWeather({
       city: favorite.city,
       temperature: favorite.temperature,
@@ -33,28 +57,49 @@ export default function FavouritesScreen() {
     router.push("/");
   };
 
-  const renderFavoriteItem = ({ item }: { item: (typeof favorites)[0] }) => (
-    <TouchableOpacity
-      style={[styles.favoriteItem, { borderColor: colors.icon }]}
-      onPress={() => handleCityPress(item)}
-    >
-      <View style={styles.favoriteContent}>
-        <View style={styles.favoriteInfo}>
-          <ThemedText style={styles.cityName}>{item.city}</ThemedText>
-          <ThemedText style={styles.weatherInfo}>
-            {convertTemperature(item.temperature)}°
-            {temperatureUnit === "celsius" ? "C" : "F"} • {item.description}
-          </ThemedText>
+  const renderFavoriteItem = ({ item }: { item: (typeof favorites)[0] }) => {
+    const busy = isLoading && pressedId === item.id;
+
+    return (
+      <TouchableOpacity
+        style={[
+          styles.favoriteItem,
+          { borderColor: colors.icon, opacity: busy ? 0.75 : 1 },
+        ]}
+        onPress={() => handleCityPress(item)}
+        disabled={busy}
+        accessibilityRole="button"
+        accessibilityState={{ busy }}
+        accessibilityLabel={`Visa väder för ${item.city}`}
+      >
+        <View style={styles.favoriteContent}>
+          <View style={styles.favoriteInfo}>
+            <ThemedText style={styles.cityName}>{item.city}</ThemedText>
+            <ThemedText style={styles.weatherInfo}>
+              {convertTemperature(item.temperature)}°
+              {temperatureUnit === "celsius" ? "C" : "F"} • {item.description}
+            </ThemedText>
+          </View>
+
+          {/* Höger sida: antingen loader eller papperskorg */}
+          {busy ? (
+            <View style={styles.spinnerWrap}>
+              <ActivityIndicator />
+            </View>
+          ) : (
+            <TouchableOpacity
+              style={[styles.deleteButton, { backgroundColor: "#ff4444" }]}
+              onPress={() => removeFavorite(item.id)}
+              accessibilityRole="button"
+              accessibilityLabel={`Ta bort ${item.city} från favoriter`}
+            >
+              <IconSymbol name="trash" size={20} color="#fff" />
+            </TouchableOpacity>
+          )}
         </View>
-        <TouchableOpacity
-          style={[styles.deleteButton, { backgroundColor: "#ff4444" }]}
-          onPress={() => removeFavorite(item.id)}
-        >
-          <IconSymbol name="trash" size={20} color="#fff" />
-        </TouchableOpacity>
-      </View>
-    </TouchableOpacity>
-  );
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <ThemedView style={styles.container}>
@@ -86,49 +131,21 @@ export default function FavouritesScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  header: {
-    padding: 20,
-    paddingTop: 40,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: "bold",
-    marginBottom: 5,
-  },
-  subtitle: {
-    fontSize: 14,
-    opacity: 0.6,
-  },
-  listContent: {
-    padding: 20,
-    paddingTop: 0,
-  },
-  favoriteItem: {
-    borderWidth: 2,
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 15,
-  },
+  container: { flex: 1 },
+  header: { padding: 20, paddingTop: 40 },
+  title: { fontSize: 32, fontWeight: "bold", marginBottom: 5 },
+  subtitle: { fontSize: 14, opacity: 0.6 },
+  listContent: { padding: 20, paddingTop: 0 },
+  favoriteItem: { borderWidth: 2, borderRadius: 16, padding: 20, marginBottom: 15 },
   favoriteContent: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+ gap: 12,
   },
-  favoriteInfo: {
-    flex: 1,
-  },
-  cityName: {
-    fontSize: 22,
-    fontWeight: "bold",
-    marginBottom: 5,
-  },
-  weatherInfo: {
-    fontSize: 16,
-    opacity: 0.7,
-  },
+  favoriteInfo: { flex: 1 },
+  cityName: { fontSize: 22, fontWeight: "bold", marginBottom: 5 },
+  weatherInfo: { fontSize: 16, opacity: 0.7 },
   deleteButton: {
     width: 44,
     height: 44,
@@ -136,21 +153,14 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  emptyContainer: {
-    flex: 1,
+  spinnerWrap: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
     justifyContent: "center",
     alignItems: "center",
-    padding: 40,
   },
-  emptyText: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginTop: 20,
-    marginBottom: 10,
-  },
-  emptySubtext: {
-    fontSize: 14,
-    opacity: 0.6,
-    textAlign: "center",
-  },
+  emptyContainer: { flex: 1, justifyContent: "center", alignItems: "center", padding: 40 },
+  emptyText: { fontSize: 20, fontWeight: "bold", marginTop: 20, marginBottom: 10 },
+  emptySubtext: { fontSize: 14, opacity: 0.6, textAlign: "center" },
 });
