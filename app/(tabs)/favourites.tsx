@@ -6,6 +6,8 @@ import { useWeather } from "@/context/weather-context";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { router } from "expo-router";
 import { FlatList, TouchableOpacity, View, StyleSheet } from "react-native";
+import { useFetchWeather } from "@/hooks/use-fetch-weather";
+
 
 export default function FavouritesScreen() {
   const colorScheme = useColorScheme();
@@ -17,6 +19,8 @@ export default function FavouritesScreen() {
     convertTemperature,
     temperatureUnit,
   } = useWeather();
+  const { getWeatherByCity, isLoading } = useFetchWeather();
+
 
   const handleCityPress = (favorite: (typeof favorites)[0]) => {
     // Sätt vädret och navigera till huvudsidan
